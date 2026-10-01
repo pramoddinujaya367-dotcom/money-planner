@@ -1,1167 +1,1069 @@
 <!DOCTYPE html>
 <html lang="si">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Money Planner - මුදල් සැලසුම්කරු</title>
-    <style>
-        :root {
-            --primary-color: #1b5e20;
-            --primary-light: #2e7d32;
-            --accent-color: #4caf50;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #2c3e50;
-            --text-muted: #7f8c8d;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-            --success-color: #27ae60;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Planner - මුදල් සැලසුම්කරු</title>
+<style>
+:root {
+  --primary-color: #1b5e20;
+  --primary-light: #2e7d32;
+  --accent-color: #4caf50;
+  --bg-color: #f4f7f6;
+  --card-bg: #ffffff;
+  --text-color: #2c3e50;
+  --text-muted: #7f8c8d;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
+  --success-color: #27ae60;
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.app-container {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 70px;
+}
 
-        .app-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding-bottom: 70px;
-        }
+/* Modal Overlay */
+.overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+}
+.modal-card {
+  background: var(--card-bg); border-radius: 16px; padding: 25px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-card h2 { color: var(--primary-color); margin-bottom: 15px; font-size: 20px; }
+.lang-btn {
+  width: 100%; padding: 14px; margin: 8px 0; border: 2px solid var(--accent-color); background: #fff; color: var(--primary-color); font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s;
+}
+.lang-btn:hover, .lang-btn:active { background: var(--accent-color); color: #fff; }
 
-        /* Modal / Lang Selector Overlay */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
+/* Header */
+header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+header .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+.user-nav { display: flex; align-items: center; gap: 10px; }
+.lang-select-sm {
+  background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 13px; outline: none;
+}
+.lang-select-sm option { color: #000; }
+.btn-logout { background: rgba(231, 76, 60, 0.8); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
 
-        .modal-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+/* Auth Screen */
+.auth-container { padding: 25px 20px; }
+.auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+.auth-tab { flex: 1; padding: 12px; border: none; background: none; font-size: 16px; font-weight: bold; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; }
+.auth-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
 
-        .modal-card h2 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
+/* Content Views */
+.view-section { display: none; padding: 20px; }
+.view-section.active { display: block; }
+.card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.card h3 { color: var(--primary-color); font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 
-        .lang-btn {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border: 2px solid var(--accent-color);
-            background: #fff;
-            color: var(--primary-color);
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+/* Forms & Inputs */
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 13px; font-weight: 600; color: var(--text-color); margin-bottom: 6px; }
+input, select { width: 100%; padding: 12px; border: 1.5px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; transition: 0.2s; }
+input:focus, select:focus { border-color: var(--accent-color); }
 
-        .lang-btn:hover, .lang-btn:active {
-            background: var(--accent-color);
-            color: #fff;
-        }
+.btn-primary { width: 100%; padding: 14px; background: var(--primary-color); color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-secondary { background: #7f8c8d; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.btn-success { background: var(--success-color); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        /* Header */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            color: #fff;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+/* Metric Grid */
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+.metric-card { background: #fff; padding: 14px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 4px solid var(--primary-color); }
+.metric-card.danger { border-left-color: var(--danger-color); }
+.metric-card.warning { border-left-color: var(--warning-color); }
+.metric-card.success { border-left-color: var(--success-color); }
+.metric-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.metric-value { font-size: 16px; font-weight: bold; color: var(--text-color); }
 
-        header .logo {
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* Progress Bar */
+.progress-container { background: #e0e0e0; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin: 8px 0; }
+.progress-bar { background: var(--accent-color); height: 100%; width: 0%; transition: width 0.3s; }
 
-        .user-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+/* Alert Banners */
+.alert { padding: 12px 15px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+.alert-danger { background: #fde8e8; color: var(--danger-color); border: 1px solid #f8b4b4; }
+.alert-warning { background: #fef5e7; color: var(--warning-color); border: 1px solid #fdebd0; }
 
-        .lang-select-sm {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            outline: none;
-        }
+/* Bottom Nav */
+.bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #ffffff; display: flex; border-top: 1px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+.nav-item { flex: 1; padding: 8px 2px; text-align: center; background: none; border: none; color: var(--text-muted); font-size: 10px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.nav-item.active { color: var(--primary-color); }
+.nav-item span.icon { font-size: 16px; }
 
-        .lang-select-sm option {
-            color: #000;
-        }
-
-        .btn-logout {
-            background: rgba(231, 76, 60, 0.8);
-            color: #fff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        /* Auth Screen */
-        .auth-container {
-            padding: 25px 20px;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-        .auth-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        /* Content Views */
-        .view-section {
-            display: none;
-            padding: 20px;
-        }
-
-        .view-section.active {
-            display: block;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        }
-
-        .card h3 {
-            color: var(--primary-color);
-            font-size: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Forms & Inputs */
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 6px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-color);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-secondary {
-            background: #7f8c8d;
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        /* Metric Grid */
-        .metric-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .metric-card {
-            background: #fff;
-            padding: 14px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .metric-card.danger {
-            border-left-color: var(--danger-color);
-        }
-
-        .metric-card.warning {
-            border-left-color: var(--warning-color);
-        }
-
-        .metric-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .metric-value {
-            font-size: 17px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 12px;
-            width: 100%;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-
-        .progress-bar {
-            background: var(--accent-color);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        /* Alert Banners */
-        .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-danger {
-            background: #fde8e8;
-            color: var(--danger-color);
-            border: 1px solid #f8b4b4;
-        }
-
-        .alert-warning {
-            background: #fef5e7;
-            color: var(--warning-color);
-            border: 1px solid #fdebd0;
-        }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            max-width: 500px;
-            background: #ffffff;
-            display: flex;
-            border-top: 1px solid #e0e0e0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
-        }
-
-        .nav-item {
-            flex: 1;
-            padding: 10px 4px;
-            text-align: center;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-
-        .nav-item span.icon {
-            font-size: 18px;
-        }
-
-        /* Dynamic Table for Loan */
-        .table-responsive {
-            overflow-x: auto;
-            margin-top: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th, td {
-            padding: 8px 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        th {
-            background: #f8f9fa;
-            color: var(--text-color);
-        }
-
-        .custom-cat-item {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            align-items: center;
-        }
-
-        .custom-cat-item input[type="text"] {
-            flex: 1;
-        }
-        .custom-cat-item input[type="number"] {
-            flex: 1;
-        }
-        .btn-del {
-            background: var(--danger-color);
-            color: #fff;
-            border: none;
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-    </style>
+/* Lists and Tables */
+.table-responsive { overflow-x: auto; margin-top: 15px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; }
+th { background: #f8f9fa; color: var(--text-color); }
+.custom-cat-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.custom-cat-item input[type="text"], .custom-cat-item input[type="number"] { flex: 1; }
+.btn-del { background: var(--danger-color); color: #fff; border: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+.log-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 13px; }
+</style>
 </head>
 <body>
 
 <div class="app-container">
 
-    <!-- LANGUAGE SELECTION OVERLAY (First Load) -->
-    <div id="langModal" class="overlay" style="display: none;">
-        <div class="modal-card">
-            <h2>Select Language / භාෂාව තෝරන්න / மொழியைத் தேர்ந்தெடுக்கவும்</h2>
-            <button class="lang-btn" onclick="selectInitialLanguage('si')">🇱🇰 සිංහල (Sinhala)</button>
-            <button class="lang-btn" onclick="selectInitialLanguage('en')">🇬🇧 English</button>
-            <button class="lang-btn" onclick="selectInitialLanguage('ta')">🇱🇰 தமிழ் (Tamil)</button>
+  <!-- LANGUAGE SELECTION OVERLAY -->
+  <div id="langModal" class="overlay" style="display: none;">
+    <div class="modal-card">
+      <h2>Select Language / භාෂාව තෝරන්න / மொழியைத் தேர்ந்தெடுக்கவும்</h2>
+      <button class="lang-btn" onclick="selectInitialLanguage('si')">🇱🇰 සිංහල (Sinhala)</button>
+      <button class="lang-btn" onclick="selectInitialLanguage('en')">🇬🇧 English</button>
+      <button class="lang-btn" onclick="selectInitialLanguage('ta')">🇱🇰 தமிழ் (Tamil)</button>
+    </div>
+  </div>
+
+  <!-- APP HEADER -->
+  <header id="appHeader">
+    <div class="logo">📊 Money Planner</div>
+    <div class="user-nav">
+      <select id="headerLangSelect" class="lang-select-sm" onchange="changeLanguage(this.value)">
+        <option value="si">සිංහල</option>
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+      </select>
+      <button id="btnLogout" class="btn-logout" onclick="logout()" style="display: none;" data-i18n="logout">Logout</button>
+    </div>
+  </header>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')" id="tabBtnLogin" data-i18n="login">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')" id="tabBtnRegister" data-i18n="register">Register</button>
+    </div>
+    <form id="authForm" onsubmit="handleAuth(event)">
+      <div class="form-group">
+        <label data-i18n="username">Username</label>
+        <input type="text" id="authUsername" required placeholder="eg: user123">
+      </div>
+      <div class="form-group">
+        <label data-i18n="password">Password</label>
+        <input type="password" id="authPassword" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-primary" id="authSubmitBtn" data-i18n="login">Login</button>
+    </form>
+  </div>
+
+  <!-- MAIN APP SCREEN -->
+  <div id="mainApp" style="display: none;">
+    
+    <!-- VIEW 1: DASHBOARD -->
+    <div id="viewDashboard" class="view-section active">
+      
+      <!-- NOTIFICATION / ALERT CONTAINER -->
+      <div id="warningContainer"></div>
+
+      <!-- Dynamic Daily Spending Advice Card -->
+      <div class="card" style="background: #e8f5e9; border: 1px solid #c8e6c9;">
+        <h3 style="color: #2e7d32;" data-i18n="todayBudgetTitle">📌 අද දින වියදම් ලිමිට් එක</h3>
+        <div style="font-size: 22px; font-weight: bold; color: #1b5e20; margin: 5px 0;" id="dashTodayLimit">Rs. 0.00</div>
+        <p style="font-size: 12px; color: #444;">ඉතිරි කිරීමේ ඉලක්කය සාක්ෂාත් කර ගැනීමට අද දින මෙම මුදලට වඩා වියදම් නොකරන්න.</p>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-title" data-i18n="totIncome">Total Income</div>
+          <div class="metric-value" id="dashTotIncome">Rs. 0.00</div>
         </div>
+        <div class="metric-card danger">
+          <div class="metric-title" data-i18n="totExpenses">Total Expenses</div>
+          <div class="metric-value" id="dashTotExpenses">Rs. 0.00</div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-title" data-i18n="availBalance">Available Balance</div>
+          <div class="metric-value" id="dashAvailBalance">Rs. 0.00</div>
+        </div>
+        <div class="metric-card warning">
+          <div class="metric-title" data-i18n="fixedExpenses">Fixed / Bills Total</div>
+          <div class="metric-value" id="dashFixedExpenses">Rs. 0.00</div>
+        </div>
+      </div>
+
+      <!-- Quick Expense Tracker -->
+      <div class="card">
+        <h3 data-i18n="addDailyExpense">📝 අද දින වියදම එක් කරන්න</h3>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="quickDailyAmount" placeholder="මුදල (රු.)">
+          <input type="text" id="quickDailyNote" placeholder="විස්තරය (eg: කෑම)">
+        </div>
+        <button class="btn-primary" onclick="addDailyExpense()" style="margin-top: 10px;" data-i18n="saveDailyExp">වියදම සටහන් කරන්න</button>
+      </div>
+
+      <!-- Savings Progress -->
+      <div class="card">
+        <h3 data-i18n="savingsProgress">Savings Target Progress</h3>
+        <div class="progress-container">
+          <div class="progress-bar" id="savingsProgressBar"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px;">
+          <span id="savingsCurrentText">Target Target: Rs. 0</span>
+          <span id="savingsTargetText">Target: Rs. 0</span>
+        </div>
+      </div>
+
+      <!-- Salary & Cycle -->
+      <div class="card">
+        <h3 data-i18n="salaryInfo">Salary & Cycle</h3>
+        <p style="font-size: 14px;" id="dashDaysUntilSalary">Days until next salary: --</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="dashLoanEmiText">Active Loan EMI: Rs. 0.00</p>
+      </div>
+
+      <!-- Daily Logs -->
+      <div class="card">
+        <h3 data-i18n="recentDailyLogs">📅 මේ මාසයේ දෛනික වියදම්</h3>
+        <div id="dailyLogsList"></div>
+      </div>
     </div>
 
-    <!-- APP HEADER -->
-    <header id="appHeader">
-        <div class="logo">📊 Money Planner</div>
-        <div class="user-nav">
-            <select id="headerLangSelect" class="lang-select-sm" onchange="changeLanguage(this.value)">
-                <option value="si">සිංහල</option>
-                <option value="en">English</option>
-                <option value="ta">தமிழ்</option>
+    <!-- VIEW 2: INCOME & SAVINGS -->
+    <div id="viewIncome" class="view-section">
+      <div class="card">
+        <h3 data-i18n="incomeDetails">Salary & Income</h3>
+        <div class="form-group">
+          <label data-i18n="monthlySalary">Monthly Salary (Rs.)</label>
+          <input type="number" id="inSalary" placeholder="100000">
+        </div>
+        <div class="form-group">
+          <label data-i18n="otherIncome">Other Income (Rs.)</label>
+          <input type="number" id="inOtherIncome" placeholder="15000">
+        </div>
+        <div class="form-group">
+          <label data-i18n="nextSalaryDate">Next Salary Date</label>
+          <input type="date" id="inNextSalaryDate">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 data-i18n="savingsGoal">Savings Target</h3>
+        <div class="form-group">
+          <label data-i18n="savingsTarget">Monthly Savings Target (Rs.)</label>
+          <input type="number" id="inSavingsTarget" placeholder="20000">
+        </div>
+        <button class="btn-primary" onclick="saveIncomeAndSavings()" data-i18n="saveData">Save Income & Savings</button>
+      </div>
+    </div>
+
+    <!-- VIEW 3: FIXED & MONTHLY EXPENSES -->
+    <div id="viewExpenses" class="view-section">
+      <div class="card">
+        <h3 data-i18n="fixedExpensesTitle">📌 අනිවාර්ය / ස්ථාවර මාසික වියදම් (Fixed Bills)</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">ෆෝන් බිල්, විදුලි/ජල බිල්, බස් කුලී වැනි මාසිකව වෙනස් නොවන අනිවාර්ය වියදම් මෙහි ඇතුළත් කරන්න.</p>
+        
+        <div class="form-group">
+          <label data-i18n="catPhone">Phone & Internet Bills</label>
+          <input type="number" class="exp-input" id="expPhone" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label data-i18n="catUtility">Electricity & Water Bills</label>
+          <input type="number" class="exp-input" id="expUtility" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label data-i18n="catRent">Housing / Rent</label>
+          <input type="number" class="exp-input" id="expRent" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label data-i18n="catTransport">Monthly Transport / Bus Fare</label>
+          <input type="number" class="exp-input" id="expTransport" placeholder="0">
+        </div>
+
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
+        
+        <h4 style="font-size: 14px; margin-bottom: 10px;" data-i18n="customFixedCat">වෙනත් අනිවාර්ය වියදම් (Custom Fixed Expenses)</h4>
+        <div id="customExpensesList"></div>
+        
+        <button class="btn-secondary" onclick="addCustomExpenseField()" style="margin-top: 5px;" data-i18n="addCustomCat">+ Add Custom Expense</button>
+        <button class="btn-primary" onclick="saveExpenses()" style="margin-top: 20px;" data-i18n="saveExpenses">Save Fixed Expenses</button>
+      </div>
+    </div>
+
+    <!-- NEW VIEW 4: LEND MONEY / DEBT TRACKER -->
+    <div id="viewLend" class="view-section">
+      <div class="card">
+        <h3 data-i18n="lendMoneyTitle">🤝 ණයට දුන් මුදල් සටහන් කිරීම</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">අපෙන් නයට මුදල් ඉල්ලාගත් අය සහ නැවත ලබාදීමට පොරොන්දු වූ දිනය මෙතැනින් ඇතුළත් කරන්න.</p>
+        
+        <div class="form-group">
+          <label data-i18n="borrowerName">ණය ලබාගත් තැනැත්තාගේ නම</label>
+          <input type="text" id="lendName" placeholder="උදා: කමල්">
+        </div>
+        <div class="form-group">
+          <label data-i18n="lendAmount">දුන් මුදල (රු.)</label>
+          <input type="number" id="lendAmount" placeholder="5000">
+        </div>
+        <div class="form-group">
+          <label data-i18n="returnDate">නැවත ලබාදෙන බවට පොරොන්දු වූ දිනය</label>
+          <input type="date" id="lendReturnDate">
+        </div>
+        <button class="btn-primary" onclick="addLendRecord()" data-i18n="addLendBtn">ණය සටහන ඇතුළත් කරන්න</button>
+      </div>
+
+      <!-- Active Lending List -->
+      <div class="card">
+        <h3 data-i18n="lendListTitle">📋 ලැබීමට ඇති ණය මුදල් ලැයිස්තුව</h3>
+        <div id="lendList"></div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: LOAN CALCULATOR -->
+    <div id="viewLoan" class="view-section">
+      <div class="card">
+        <h3 data-i18n="loanCalcTitle">Bank Loan Calculator</h3>
+        <div class="form-group">
+          <label data-i18n="loanAmount">Loan Amount (Rs.)</label>
+          <input type="number" id="loanAmount" placeholder="500000">
+        </div>
+        <div class="form-group">
+          <label data-i18n="interestRate">Annual Interest Rate (%)</label>
+          <input type="number" step="0.1" id="loanRate" placeholder="12">
+        </div>
+        <div class="form-group">
+          <label data-i18n="loanPeriod">Period</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" id="loanPeriod" placeholder="3">
+            <select id="loanPeriodUnit" style="width: 120px;">
+              <option value="years" data-i18n="years">Years</option>
+              <option value="months" data-i18n="months">Months</option>
             </select>
-            <button id="btnLogout" class="btn-logout" onclick="logout()" style="display: none;" data-i18n="logout">Logout</button>
+          </div>
         </div>
-    </header>
+        <button class="btn-primary" onclick="calculateLoan()" data-i18n="calcLoan">Calculate Loan</button>
+      </div>
 
-    <!-- AUTH SCREEN (Login / Register) -->
-    <div id="authScreen" class="auth-container">
-        <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchAuthTab('login')" id="tabBtnLogin" data-i18n="login">Login</button>
-            <button class="auth-tab" onclick="switchAuthTab('register')" id="tabBtnRegister" data-i18n="register">Register</button>
+      <!-- Loan Results Card -->
+      <div class="card" id="loanResultsCard" style="display: none;">
+        <h3 data-i18n="loanResults">Loan Summary</h3>
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-title" data-i18n="monthlyEmi">Monthly Installment</div>
+            <div class="metric-value" id="resEmi">Rs. 0.00</div>
+          </div>
+          <div class="metric-card danger">
+            <div class="metric-title" data-i18n="totalInterest">Total Interest</div>
+            <div class="metric-value" id="resTotalInterest">Rs. 0.00</div>
+          </div>
         </div>
-
-        <form id="authForm" onsubmit="handleAuth(event)">
-            <div class="form-group">
-                <label data-i18n="username">Username</label>
-                <input type="text" id="authUsername" required placeholder="eg: user123">
-            </div>
-            <div class="form-group">
-                <label data-i18n="password">Password</label>
-                <input type="password" id="authPassword" required placeholder="••••••••">
-            </div>
-            <button type="submit" class="btn-primary" id="authSubmitBtn" data-i18n="login">Login</button>
-        </form>
+        <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px;" id="resTotalPayable">Total Repayment: Rs. 0.00</p>
+        <button class="btn-secondary" style="width: 100%; margin-bottom: 15px;" onclick="saveLoanToProfile()" data-i18n="saveLoanToProfile">Save Loan to Profile</button>
+        
+        <h4 style="font-size: 13px; margin-bottom: 8px;" data-i18n="repaymentSchedule">Repayment Schedule Preview</h4>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-i18n="emi">EMI</th>
+                <th data-i18n="interest">Interest</th>
+                <th data-i18n="balance">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="loanTableBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- MAIN APP SCREEN (Dashboard & Features) -->
-    <div id="mainApp" style="display: none;">
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="switchView('viewDashboard', this)">
+        <span class="icon">📊</span>
+        <span data-i18n="navDashboard">Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="switchView('viewIncome', this)">
+        <span class="icon">💵</span>
+        <span data-i18n="navIncome">Income</span>
+      </button>
+      <button class="nav-item" onclick="switchView('viewExpenses', this)">
+        <span class="icon">💸</span>
+        <span data-i18n="navExpenses">Fixed Bills</span>
+      </button>
+      <button class="nav-item" onclick="switchView('viewLend', this)">
+        <span class="icon">🤝</span>
+        <span data-i18n="navLend">ණයට දුන්</span>
+      </button>
+      <button class="nav-item" onclick="switchView('viewLoan', this)">
+        <span class="icon">🏦</span>
+        <span data-i18n="navLoan">Loan</span>
+      </button>
+    </nav>
 
-        <!-- VIEW 1: DASHBOARD -->
-        <div id="viewDashboard" class="view-section active">
-            
-            <div id="warningContainer"></div>
-
-            <div class="metric-grid">
-                <div class="metric-card">
-                    <div class="metric-title" data-i18n="totIncome">Total Income</div>
-                    <div class="metric-value" id="dashTotIncome">Rs. 0.00</div>
-                </div>
-                <div class="metric-card danger">
-                    <div class="metric-title" data-i18n="totExpenses">Total Expenses</div>
-                    <div class="metric-value" id="dashTotExpenses">Rs. 0.00</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-title" data-i18n="availBalance">Available Money</div>
-                    <div class="metric-value" id="dashAvailBalance">Rs. 0.00</div>
-                </div>
-                <div class="metric-card warning">
-                    <div class="metric-title" data-i18n="dailyLimit">Daily Spending Limit</div>
-                    <div class="metric-value" id="dashDailyLimit">Rs. 0.00</div>
-                </div>
-            </div>
-
-            <!-- Savings Progress -->
-            <div class="card">
-                <h3 data-i18n="savingsProgress">Savings Target Progress</h3>
-                <div class="progress-container">
-                    <div class="progress-bar" id="savingsProgressBar"></div>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px;">
-                    <span id="savingsCurrentText">Saved: Rs. 0</span>
-                    <span id="savingsTargetText">Target: Rs. 0</span>
-                </div>
-            </div>
-
-            <!-- Salary Countdown Card -->
-            <div class="card">
-                <h3 data-i18n="salaryInfo">Salary & Cycle</h3>
-                <p style="font-size: 14px;" id="dashDaysUntilSalary">Days until next salary: --</p>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="dashLoanEmiText">Active Loan EMI: Rs. 0.00</p>
-            </div>
-        </div>
-
-        <!-- VIEW 2: INCOME & SAVINGS -->
-        <div id="viewIncome" class="view-section">
-            <div class="card">
-                <h3 data-i18n="incomeDetails">Salary & Income</h3>
-                <div class="form-group">
-                    <label data-i18n="monthlySalary">Monthly Salary (Rs.)</label>
-                    <input type="number" id="inSalary" placeholder="100000">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="otherIncome">Other Income (Rs.)</label>
-                    <input type="number" id="inOtherIncome" placeholder="15000">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="nextSalaryDate">Next Salary Date</label>
-                    <input type="date" id="inNextSalaryDate">
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 data-i18n="savingsGoal">Savings Target</h3>
-                <div class="form-group">
-                    <label data-i18n="savingsTarget">Monthly Savings Target (Rs.)</label>
-                    <input type="number" id="inSavingsTarget" placeholder="20000">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="currentSavings">Current Savings (Rs.)</label>
-                    <input type="number" id="inCurrentSavings" placeholder="5000">
-                </div>
-                <button class="btn-primary" onclick="saveIncomeAndSavings()" data-i18n="saveData">Save Income & Savings</button>
-            </div>
-        </div>
-
-        <!-- VIEW 3: EXPENSES -->
-        <div id="viewExpenses" class="view-section">
-            <div class="card">
-                <h3 data-i18n="monthlyExpenses">Monthly Expenses</h3>
-                
-                <div class="form-group">
-                    <label data-i18n="catFood">Food & Groceries</label>
-                    <input type="number" class="exp-input" id="expFood" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="catRent">Housing / Rent</label>
-                    <input type="number" class="exp-input" id="expRent" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="catTransport">Transport</label>
-                    <input type="number" class="exp-input" id="expTransport" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="catPhone">Phone & Internet</label>
-                    <input type="number" class="exp-input" id="expPhone" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="catUtility">Electricity & Water</label>
-                    <input type="number" class="exp-input" id="expUtility" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="catOther">Other Expenses</label>
-                    <input type="number" class="exp-input" id="expOther" placeholder="0">
-                </div>
-
-                <hr style="margin: 15px 0; border: none; border-top: 1px solid #eee;">
-                
-                <!-- Custom Categories -->
-                <h4 style="font-size: 14px; margin-bottom: 10px;" data-i18n="customCategories">Custom Expense Categories</h4>
-                <div id="customExpensesList"></div>
-                
-                <button class="btn-secondary" onclick="addCustomExpenseField()" style="margin-top: 5px;" data-i18n="addCustomCat">+ Add Custom Category</button>
-
-                <button class="btn-primary" onclick="saveExpenses()" style="margin-top: 20px;" data-i18n="saveExpenses">Save Expenses</button>
-            </div>
-        </div>
-
-        <!-- VIEW 4: LOAN CALCULATOR -->
-        <div id="viewLoan" class="view-section">
-            <div class="card">
-                <h3 data-i18n="loanCalcTitle">Bank Loan Calculator</h3>
-                
-                <div class="form-group">
-                    <label data-i18n="loanAmount">Loan Amount (Rs.)</label>
-                    <input type="number" id="loanAmount" placeholder="500000">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="interestRate">Annual Interest Rate (%)</label>
-                    <input type="number" step="0.1" id="loanRate" placeholder="12">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="loanPeriod">Period</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="number" id="loanPeriod" placeholder="3">
-                        <select id="loanPeriodUnit" style="width: 120px;">
-                            <option value="years" data-i18n="years">Years</option>
-                            <option value="months" data-i18n="months">Months</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button class="btn-primary" onclick="calculateLoan()" data-i18n="calcLoan">Calculate Loan</button>
-            </div>
-
-            <!-- Loan Results Card -->
-            <div class="card" id="loanResultsCard" style="display: none;">
-                <h3 data-i18n="loanResults">Loan Summary</h3>
-                <div class="metric-grid">
-                    <div class="metric-card">
-                        <div class="metric-title" data-i18n="monthlyEmi">Monthly Installment</div>
-                        <div class="metric-value" id="resEmi">Rs. 0.00</div>
-                    </div>
-                    <div class="metric-card danger">
-                        <div class="metric-title" data-i18n="totalInterest">Total Interest</div>
-                        <div class="metric-value" id="resTotalInterest">Rs. 0.00</div>
-                    </div>
-                </div>
-                <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px;" id="resTotalPayable">Total Repayment: Rs. 0.00</p>
-                
-                <button class="btn-secondary" style="width: 100%; margin-bottom: 15px;" onclick="saveLoanToProfile()" data-i18n="saveLoanToProfile">Save Loan to Profile</button>
-
-                <h4 style="font-size: 13px; margin-bottom: 8px;" data-i18n="repaymentSchedule">Repayment Schedule Preview</h4>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th data-i18n="emi">EMI</th>
-                                <th data-i18n="interest">Interest</th>
-                                <th data-i18n="balance">Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody id="loanTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- BOTTOM NAVIGATION -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="switchView('viewDashboard', this)">
-                <span class="icon">📊</span>
-                <span data-i18n="navDashboard">Dashboard</span>
-            </button>
-            <button class="nav-item" onclick="switchView('viewIncome', this)">
-                <span class="icon">💵</span>
-                <span data-i18n="navIncome">Income</span>
-            </button>
-            <button class="nav-item" onclick="switchView('viewExpenses', this)">
-                <span class="icon">💸</span>
-                <span data-i18n="navExpenses">Expenses</span>
-            </button>
-            <button class="nav-item" onclick="switchView('viewLoan', this)">
-                <span class="icon">🏦</span>
-                <span data-i18n="navLoan">Loan</span>
-            </button>
-        </nav>
-
-    </div>
+  </div>
 </div>
 
 <script>
-    // TRANSLATIONS DICTIONARY
-    const translations = {
-        si: {
-            login: "ඇතුළු වන්න (Login)",
-            register: "ලියාපදිංචි වන්න (Register)",
-            username: "පරිශීලක නාමය (Username)",
-            password: "මුරපදය (Password)",
-            logout: "ඉවත් වන්න",
-            totIncome: "මුළු ආදායම",
-            totExpenses: "මුළු වියදම",
-            availBalance: "ඉතිරි මුදල",
-            dailyLimit: "දෛනික වියදම් සීමාව",
-            savingsProgress: "ඉතිරි කිරීමේ ඉලක්කය",
-            salaryInfo: "පඩිය සහ කාල සීමාව",
-            incomeDetails: "ආදායම් විස්තර",
-            monthlySalary: "මාසික පඩිය (රු.)",
-            otherIncome: "වෙනත් ආදායම් (රු.)",
-            nextSalaryDate: "ඊළඟ පඩිය ලැබෙන දිනය",
-            savingsGoal: "ඉතිරි කිරීමේ ඉලක්කය",
-            savingsTarget: "මාසික ඉතිරි කිරීමේ ඉලක්කය (රු.)",
-            currentSavings: "දැනට ඉතිරි කර ඇති මුදල (රු.)",
-            saveData: "ආදායම් විස්තර සුරකින්න",
-            monthlyExpenses: "මාසික වියදම්",
-            catFood: "ආහාර සහ කළමනා",
-            catRent: "නිවාස / ගෙවල් කුලී",
-            catTransport: "ගමනාගමනය",
-            catPhone: "දුරකථන සහ ඉන්ටර්නෙට්",
-            catUtility: "විදුලිය සහ ජලය",
-            catOther: "වෙනත් වියදම්",
-            customCategories: "අමතර වියදම් වර්ග",
-            addCustomCat: "+ අලුත් වියදමක් එකතු කරන්න",
-            saveExpenses: "වියදම් සුරකින්න",
-            loanCalcTitle: "බැංකු ණය ගණකය",
-            loanAmount: "ණය මුදල (රු.)",
-            interestRate: "වාර්ෂික පොලී අනුපාතය (%)",
-            loanPeriod: "ණය ගෙවන කාලය",
-            years: "අවුරුදු",
-            months: "මාස",
-            calcLoan: "ණය පොලිය ගණනය කරන්න",
-            loanResults: "ණය ගෙවීමේ තොරතුරු",
-            monthlyEmi: "මාසික වාරිකය",
-            totalInterest: "මුළු පොලිය",
-            saveLoanToProfile: "මෙම ණය වාරිකය Profile එකට එකතු කරන්න",
-            repaymentSchedule: "මාසික ගෙවීම් සටහන",
-            navDashboard: "ප්‍රධාන පුවරුව",
-            navIncome: "ආදායම්",
-            navExpenses: "වියදම්",
-            navLoan: "ණය ගණකය",
-            emi: "වාරිකය",
-            interest: "පොලිය",
-            balance: "ඉතිරි ණය",
-            warnHighSpend: "⚠️ අවධානයයි: ඔබගේ වියදම ආදායමෙන් 80% කට වඩා වැඩිය!",
-            warnOverBudget: "🚨 අනතුරු ඇඟවීමයි: මුළු වියදම ලැබුණු මුදලට වඩා වැඩිය!"
-        },
-        en: {
-            login: "Login",
-            register: "Register",
-            username: "Username",
-            password: "Password",
-            logout: "Logout",
-            totIncome: "Total Income",
-            totExpenses: "Total Expenses",
-            availBalance: "Available Money",
-            dailyLimit: "Daily Spending Limit",
-            savingsProgress: "Savings Target Progress",
-            salaryInfo: "Salary & Cycle",
-            incomeDetails: "Salary & Income",
-            monthlySalary: "Monthly Salary (Rs.)",
-            otherIncome: "Other Income (Rs.)",
-            nextSalaryDate: "Next Salary Date",
-            savingsGoal: "Savings Goal",
-            savingsTarget: "Monthly Savings Target (Rs.)",
-            currentSavings: "Current Savings (Rs.)",
-            saveData: "Save Income & Savings",
-            monthlyExpenses: "Monthly Expenses",
-            catFood: "Food & Groceries",
-            catRent: "Housing / Rent",
-            catTransport: "Transport",
-            catPhone: "Phone & Internet",
-            catUtility: "Electricity & Water",
-            catOther: "Other Expenses",
-            customCategories: "Custom Expense Categories",
-            addCustomCat: "+ Add Custom Category",
-            saveExpenses: "Save Expenses",
-            loanCalcTitle: "Bank Loan Calculator",
-            loanAmount: "Loan Amount (Rs.)",
-            interestRate: "Annual Interest Rate (%)",
-            loanPeriod: "Loan Period",
-            years: "Years",
-            months: "Months",
-            calcLoan: "Calculate Loan",
-            loanResults: "Loan Summary",
-            monthlyEmi: "Monthly Installment",
-            totalInterest: "Total Interest",
-            saveLoanToProfile: "Save Loan to Profile",
-            repaymentSchedule: "Repayment Schedule Preview",
-            navDashboard: "Dashboard",
-            navIncome: "Income",
-            navExpenses: "Expenses",
-            navLoan: "Loan",
-            emi: "EMI",
-            interest: "Interest",
-            balance: "Balance",
-            warnHighSpend: "⚠️ Warning: Your expenses exceed 80% of your income!",
-            warnOverBudget: "🚨 Alert: Expenses exceed available income!"
-        },
-        ta: {
-            login: "உள்நுழைய",
-            register: "பதிவு செய்ய",
-            username: "பயனர் பெயர்",
-            password: "கடவுச்சொல்",
-            logout: "வெளியேறு",
-            totIncome: "மொத்த வருமானம்",
-            totExpenses: "மொத்த செலவு",
-            availBalance: "மீதமுள்ள பணம்",
-            dailyLimit: "தினசரி செலவு வரம்பு",
-            savingsProgress: "சேமிப்பு இலக்கின் முன்னேற்றம்",
-            salaryInfo: "சம்பளம் & சுழற்சி",
-            incomeDetails: "வருமான விவரங்கள்",
-            monthlySalary: "மாதாந்திர சம்பளம் (ரூ.)",
-            otherIncome: "இதர வருமானம் (ரூ.)",
-            nextSalaryDate: "அடுத்த சம்பள தேதி",
-            savingsGoal: "சேமிப்பு இலக்கு",
-            savingsTarget: "மாதாந்திர சேமிப்பு இலக்கு (ரூ.)",
-            currentSavings: "தற்போதைய சேமிப்பு (ரூ.)",
-            saveData: "வருமானத்தை சேமிக்கவும்",
-            monthlyExpenses: "மாதாந்திர செலவுகள்",
-            catFood: "உணவு & மளிகை",
-            catRent: "வீடு / வாடகை",
-            catTransport: "போக்குவரத்து",
-            catPhone: "தொலைபேசி & இணையம்",
-            catUtility: "மின்சாரம் & தண்ணீர்",
-            catOther: "இதர செலவுகள்",
-            customCategories: "கூடுதல் செலவு பிரிவுகள்",
-            addCustomCat: "+ புதிய செலவைச் சேர்க்கவும்",
-            saveExpenses: "செலவுகளை சேமிக்கவும்",
-            loanCalcTitle: "கடன் கால்குலேட்டர்",
-            loanAmount: "கடன் தொகை (ரூ.)",
-            interestRate: "ஆண்டு வட்டி விகிதம் (%)",
-            loanPeriod: "கடன் காலம்",
-            years: "ஆண்டுகள்",
-            months: "மாதங்கள்",
-            calcLoan: "கணக்கிடுங்கள்",
-            loanResults: "கடன் சுருக்கம்",
-            monthlyEmi: "மாதாந்திர தவணை",
-            totalInterest: "மொத்த வட்டி",
-            saveLoanToProfile: "சுயவிவரத்தில் சேமிக்கவும்",
-            repaymentSchedule: "திருப்பிச் செலுத்தும் அட்டவணை",
-            navDashboard: "டாஷ்போர்டு",
-            navIncome: "வருமானம்",
-            navExpenses: "செலவுகள்",
-            navLoan: "கடன்",
-            emi: "தவணை",
-            interest: "வட்டி",
-            balance: "மீதி கடன்",
-            warnHighSpend: "⚠️ எச்சரிக்கை: உங்கள் செலவு வருமானத்தில் 80% ஐ விட அதிகம்!",
-            warnOverBudget: "🚨 எச்சரிக்கை: செலவுகள் வருமானத்தை விட அதிகம்!"
-        }
+// TRANSLATIONS DICTIONARY
+const translations = {
+  si: {
+    login: "ඇතුළු වන්න (Login)",
+    register: "ලියාපදිංචි වන්න (Register)",
+    username: "පරිශීලක නාමය (Username)",
+    password: "මුරපදය (Password)",
+    logout: "ඉවත් වන්න",
+    totIncome: "මුළු ආදායම",
+    totExpenses: "මාසික මුළු වියදම",
+    availBalance: "ඉතිරි වියදම් කළ හැකි මුදල",
+    fixedExpenses: "අනිවාර්ය වියදම්/බිල්පත්",
+    savingsProgress: "ඉතිරි කිරීමේ ඉලක්කය",
+    salaryInfo: "පඩිය සහ කාල සීමාව",
+    incomeDetails: "ආදායම් විස්තර",
+    monthlySalary: "මාසික පඩිය (රු.)",
+    otherIncome: "වෙනත් ආදායම් (රු.)",
+    nextSalaryDate: "ඊළඟ පඩිය ලැබෙන දිනය",
+    savingsGoal: "ඉතිරි කිරීමේ ඉලක්කය",
+    savingsTarget: "මාසික ඉතිරි කිරීමේ ඉලක්කය (රු.)",
+    saveData: "ආදායම් විස්තර සුරකින්න",
+    fixedExpensesTitle: "📌 අනිවාර්ය / ස්ථාවර මාසික වියදම් (Fixed Bills)",
+    catRent: "නිවාස / ගෙවල් කුලී",
+    catTransport: "මාසික ගමනාගමන වියදම් / බස් කුලී",
+    catPhone: "දුරකථන සහ ඉන්ටර්නෙට් බිල්",
+    catUtility: "විදුලිය සහ ජල බිල්",
+    customFixedCat: "වෙනත් අනිවාර්ය වියදම්",
+    addCustomCat: "+ අලුත් වියදමක් එකතු කරන්න",
+    saveExpenses: "වියදම් සුරකින්න",
+    lendMoneyTitle: "🤝 ණයට දුන් මුදල් සටහන් කිරීම",
+    borrowerName: "ණය ලබාගත් තැනැත්තාගේ නම",
+    lendAmount: "දුන් මුදල (රු.)",
+    returnDate: "නැවත ලබාදෙන බවට පොරොන්දු වූ දිනය",
+    addLendBtn: "ණය සටහන ඇතුළත් කරන්න",
+    lendListTitle: "📋 ලැබීමට ඇති ණය මුදල් ලැයිස්තුව",
+    loanCalcTitle: "බැංකු ණය ගණකය",
+    loanAmount: "ණය මුදල (රු.)",
+    interestRate: "වාර්ෂික පොලී අනුපාතය (%)",
+    loanPeriod: "ණය ගෙවන කාලය",
+    years: "අවුරුදු",
+    months: "මාස",
+    calcLoan: "ණය පොලිය ගණනය කරන්න",
+    loanResults: "ණය ගෙවීමේ තොරතුරු",
+    monthlyEmi: "මාසික වාරිකය",
+    totalInterest: "මුළු පොලිය",
+    saveLoanToProfile: "මෙම ණය වාරිකය Profile එකට එකතු කරන්න",
+    repaymentSchedule: "මාසික ගෙවීම් සටහන",
+    navDashboard: "ප්‍රධාන පුවරුව",
+    navIncome: "ආදායම්",
+    navExpenses: "ස්ථාවර බිල්පත්",
+    navLend: "ණයට දුන්",
+    navLoan: "ණය ගණකය",
+    emi: "වාරිකය",
+    interest: "පොලිය",
+    balance: "ඉතිරි ණය",
+    todayBudgetTitle: "📌 අද දින වියදම් ලිමිට් එක",
+    addDailyExpense: "📝 අද දින වියදම එක් කරන්න",
+    saveDailyExp: "වියදම සටහන් කරන්න",
+    recentDailyLogs: "📅 මේ මාසයේ දෛනික වියදම්",
+    warnHighSpend: "⚠️️ අවධානයයි: ඔබගේ දෛනික වියදම් සීමාව ඉක්මවා යයි!",
+    warnOverBudget: "🚨 අනතුරු ඇඟවීමයි: ඔබගේ වියදම් ලැබුණු මුදලට වඩා වැඩිය!"
+  },
+  en: {
+    login: "Login",
+    register: "Register",
+    username: "Username",
+    password: "Password",
+    logout: "Logout",
+    totIncome: "Total Income",
+    totExpenses: "Total Monthly Expenses",
+    availBalance: "Available Expense Balance",
+    fixedExpenses: "Fixed Expenses/Bills",
+    savingsProgress: "Savings Target Progress",
+    salaryInfo: "Salary & Cycle",
+    incomeDetails: "Salary & Income",
+    monthlySalary: "Monthly Salary (Rs.)",
+    otherIncome: "Other Income (Rs.)",
+    nextSalaryDate: "Next Salary Date",
+    savingsGoal: "Savings Goal",
+    savingsTarget: "Monthly Savings Target (Rs.)",
+    saveData: "Save Income & Savings",
+    fixedExpensesTitle: "📌 Mandatory / Fixed Expenses (Bills)",
+    catRent: "Housing / Rent",
+    catTransport: "Transport / Bus Fare",
+    catPhone: "Phone & Internet Bills",
+    catUtility: "Electricity & Water Bills",
+    customFixedCat: "Custom Mandatory Expenses",
+    addCustomCat: "+ Add Custom Expense",
+    saveExpenses: "Save Expenses",
+    lendMoneyTitle: "🤝 Lend Money Tracker",
+    borrowerName: "Borrower's Name",
+    lendAmount: "Amount Lent (Rs.)",
+    returnDate: "Promised Return Date",
+    addLendBtn: "Add Lending Record",
+    lendListTitle: "📋 Pending Debt Collection List",
+    loanCalcTitle: "Bank Loan Calculator",
+    loanAmount: "Loan Amount (Rs.)",
+    interestRate: "Annual Interest Rate (%)",
+    loanPeriod: "Loan Period",
+    years: "Years",
+    months: "Months",
+    calcLoan: "Calculate Loan",
+    loanResults: "Loan Summary",
+    monthlyEmi: "Monthly Installment",
+    totalInterest: "Total Interest",
+    saveLoanToProfile: "Save Loan to Profile",
+    repaymentSchedule: "Repayment Schedule Preview",
+    navDashboard: "Dashboard",
+    navIncome: "Income",
+    navExpenses: "Fixed Bills",
+    navLend: "Lend Money",
+    navLoan: "Loan",
+    emi: "EMI",
+    interest: "Interest",
+    balance: "Balance",
+    todayBudgetTitle: "📌 Today's Spending Limit",
+    addDailyExpense: "📝 Add Today's Expense",
+    saveDailyExp: "Record Expense",
+    recentDailyLogs: "📅 Daily Expenses Log",
+    warnHighSpend: "⚠️ Warning: Daily spending exceeds standard budget!",
+    warnOverBudget: "🚨 Alert: Expenses exceed available income!"
+  },
+  ta: {
+    login: "உள்நுழைய",
+    register: "பதிவு செய்ய",
+    username: "பயனர் பெயர்",
+    password: "கடவுச்சொல்",
+    logout: "வெளியேறு",
+    totIncome: "மொத்த வருமானம்",
+    totExpenses: "மொத்த செலவு",
+    availBalance: "மீதமுள்ள பணம்",
+    fixedExpenses: "நிலையான செலவுகள்",
+    savingsProgress: "சேமிப்பு இலக்கின் முன்னேற்றம்",
+    salaryInfo: "சம்பளம் & சுழற்சி",
+    incomeDetails: "வருமான விவரங்கள்",
+    monthlySalary: "மாதாந்திர சம்பளம் (ரூ.)",
+    otherIncome: "இதர வருமானம் (ரூ.)",
+    nextSalaryDate: "அடுத்த சம்பள தேதி",
+    savingsGoal: "சேமிப்பு இலக்கு",
+    savingsTarget: "மாதாந்திர சேமிப்பு இலக்கு (ரூ.)",
+    saveData: "வருமானத்தை சேமிக்கவும்",
+    fixedExpensesTitle: "📌 கட்டாய செலவுகள் (பில்கள்)",
+    catRent: "வீடு / வாடகை",
+    catTransport: "போக்குவரத்து செலவு",
+    catPhone: "தொலைபேசி & இணைய கட்டணம்",
+    catUtility: "மின்சாரம் & தண்ணீர் கட்டணம்",
+    customFixedCat: "கூடுதல் கட்டாய செலவுகள்",
+    addCustomCat: "+ புதிய செலவைச் சேர்க்கவும்",
+    saveExpenses: "செலவுகளை சேமிக்கவும்",
+    lendMoneyTitle: "🤝 கடன் கொடுத்தல் மேலாண்மை",
+    borrowerName: "கடன் வாங்கியவர் பெயர்",
+    lendAmount: "கொடுத்த தொகை (ரூ.)",
+    returnDate: "திரும்பத் தரும் தேதி",
+    addLendBtn: "பதிவு செய்யவும்",
+    lendListTitle: "📋 நிலுவையில் உள்ள கடன் பட்டியல்",
+    loanCalcTitle: "கடன் கால்குலேட்டர்",
+    loanAmount: "கடன் தொகை (ரூ.)",
+    interestRate: "ஆண்டு வட்டி விகிதம் (%)",
+    loanPeriod: "கடன் காலம்",
+    years: "ஆண்டுகள்",
+    months: "மாதங்கள்",
+    calcLoan: "கணக்கிடுங்கள்",
+    loanResults: "கடன் சுருக்கம்",
+    monthlyEmi: "மாதாந்திர தவணை",
+    totalInterest: "மொத்த வட்டி",
+    saveLoanToProfile: "சுயவிவரத்தில் சேமிக்கவும்",
+    repaymentSchedule: "திருப்பிச் செலுத்தும் அட்டவணை",
+    navDashboard: "டாஷ்போர்டு",
+    navIncome: "வருமானம்",
+    navExpenses: "நிலையான செலவுகள்",
+    navLend: "கடன்",
+    navLoan: "கடன்",
+    emi: "தவணை",
+    interest: "வட்டி",
+    balance: "மீதி கடன்",
+    todayBudgetTitle: "📌 இன்றைய செலவு வரம்பு",
+    addDailyExpense: "📝 இன்றைய செலவைச் சேர்க்கவும்",
+    saveDailyExp: "செலவை பதிவு செய்யவும்",
+    recentDailyLogs: "📅 தினசரி செலவு பதிவு",
+    warnHighSpend: "⚠️ எச்சரிக்கை: செலவு வரம்பு தாண்டுகிறது!",
+    warnOverBudget: "🚨 எச்சரிக்கை: செலவுகள் வருமானத்தை விட அதிகம்!"
+  }
+};
+
+let currentLang = 'si';
+let currentUser = null;
+let authMode = 'login';
+
+// INITIALIZATION
+window.onload = function() {
+  const savedLang = localStorage.getItem('mp_lang');
+  if (!savedLang) {
+    document.getElementById('langModal').style.display = 'flex';
+  } else {
+    currentLang = savedLang;
+    applyLanguage();
+  }
+
+  const savedUser = localStorage.getItem('mp_current_user');
+  if (savedUser) {
+    currentUser = savedUser;
+    showMainApp();
+  }
+};
+
+function selectInitialLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('mp_lang', lang);
+  document.getElementById('langModal').style.display = 'none';
+  applyLanguage();
+}
+
+function changeLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('mp_lang', lang);
+  applyLanguage();
+}
+
+function applyLanguage() {
+  document.getElementById('headerLangSelect').value = currentLang;
+  const dict = translations[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.innerText = dict[key];
+    }
+  });
+  if (currentUser) {
+    renderDashboard();
+    renderLendList();
+  }
+}
+
+// AUTH LOGIC
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tabBtnLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabBtnRegister').classList.toggle('active', mode === 'register');
+  document.getElementById('authSubmitBtn').innerText = translations[currentLang][mode];
+}
+
+function handleAuth(e) {
+  e.preventDefault();
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+
+  if (!username || !password) return;
+
+  let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
+
+  if (authMode === 'register') {
+    if (users[username]) {
+      alert('Username already exists!');
+      return;
+    }
+    users[username] = {
+      password: password,
+      income: { salary: 0, other: 0, nextSalaryDate: '' },
+      savings: { target: 0 },
+      expenses: { rent: 0, transport: 0, phone: 0, utility: 0 },
+      customExpenses: [],
+      dailyLogs: [],
+      lendLogs: [],
+      loan: { emi: 0 }
     };
+    localStorage.setItem('mp_users', JSON.stringify(users));
+    currentUser = username;
+    localStorage.setItem('mp_current_user', username);
+    showMainApp();
+  } else {
+    if (!users[username] || users[username].password !== password) {
+      alert('Invalid Username or Password!');
+      return;
+    }
+    currentUser = username;
+    localStorage.setItem('mp_current_user', username);
+    showMainApp();
+  }
+}
 
-    let currentLang = 'si';
-    let currentUser = null;
-    let authMode = 'login';
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('mp_current_user');
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'block';
+  document.getElementById('btnLogout').style.display = 'none';
+}
 
-    // INITIALIZATION
-    window.onload = function() {
-        const savedLang = localStorage.getItem('mp_lang');
-        if (!savedLang) {
-            document.getElementById('langModal').style.display = 'flex';
-        } else {
-            currentLang = savedLang;
-            applyLanguage();
-        }
+function showMainApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('btnLogout').style.display = 'inline-block';
+  loadUserDataIntoForms();
+  renderDashboard();
+  renderLendList();
+}
 
-        const savedUser = localStorage.getItem('mp_current_user');
-        if (savedUser) {
-            currentUser = savedUser;
-            showMainApp();
-        }
-    };
+// USER DATA LOGIC
+function getUserData() {
+  let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
+  return users[currentUser] || {};
+}
 
-    function selectInitialLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('mp_lang', lang);
-        document.getElementById('langModal').style.display = 'none';
-        applyLanguage();
+function updateUserData(data) {
+  let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
+  users[currentUser] = { ...users[currentUser], ...data };
+  localStorage.setItem('mp_users', JSON.stringify(users));
+  renderDashboard();
+}
+
+function loadUserDataIntoForms() {
+  const u = getUserData();
+  if (u.income) {
+    document.getElementById('inSalary').value = u.income.salary || '';
+    document.getElementById('inOtherIncome').value = u.income.other || '';
+    document.getElementById('inNextSalaryDate').value = u.income.nextSalaryDate || '';
+  }
+  if (u.savings) {
+    document.getElementById('inSavingsTarget').value = u.savings.target || '';
+  }
+  if (u.expenses) {
+    document.getElementById('expRent').value = u.expenses.rent || '';
+    document.getElementById('expTransport').value = u.expenses.transport || '';
+    document.getElementById('expPhone').value = u.expenses.phone || '';
+    document.getElementById('expUtility').value = u.expenses.utility || '';
+  }
+  renderCustomExpenseFields(u.customExpenses || []);
+}
+
+function saveIncomeAndSavings() {
+  const salary = parseFloat(document.getElementById('inSalary').value) || 0;
+  const other = parseFloat(document.getElementById('inOtherIncome').value) || 0;
+  const nextSalaryDate = document.getElementById('inNextSalaryDate').value;
+  const target = parseFloat(document.getElementById('inSavingsTarget').value) || 0;
+
+  updateUserData({
+    income: { salary, other, nextSalaryDate },
+    savings: { target }
+  });
+  alert('Saved successfully!');
+}
+
+function saveExpenses() {
+  const rent = parseFloat(document.getElementById('expRent').value) || 0;
+  const transport = parseFloat(document.getElementById('expTransport').value) || 0;
+  const phone = parseFloat(document.getElementById('expPhone').value) || 0;
+  const utility = parseFloat(document.getElementById('expUtility').value) || 0;
+
+  const customItems = [];
+  document.querySelectorAll('.custom-cat-item').forEach(item => {
+    const name = item.querySelector('.custom-name').value.trim();
+    const amount = parseFloat(item.querySelector('.custom-amount').value) || 0;
+    if (name) customItems.push({ name, amount });
+  });
+
+  updateUserData({
+    expenses: { rent, transport, phone, utility },
+    customExpenses: customItems
+  });
+  alert('Fixed Expenses saved successfully!');
+}
+
+function addCustomExpenseField(name = '', amount = '') {
+  const container = document.getElementById('customExpensesList');
+  const div = document.createElement('div');
+  div.className = 'custom-cat-item';
+  div.innerHTML = `
+    <input type="text" class="custom-name" placeholder="Category Name" value="${name}">
+    <input type="number" class="custom-amount" placeholder="Rs." value="${amount}">
+    <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function renderCustomExpenseFields(customExpenses) {
+  const container = document.getElementById('customExpensesList');
+  container.innerHTML = '';
+  customExpenses.forEach(item => addCustomExpenseField(item.name, item.amount));
+}
+
+// LEND MONEY / DEBT TRACKER LOGIC
+function addLendRecord() {
+  const name = document.getElementById('lendName').value.trim();
+  const amount = parseFloat(document.getElementById('lendAmount').value) || 0;
+  const returnDate = document.getElementById('lendReturnDate').value;
+
+  if (!name || amount <= 0 || !returnDate) {
+    alert('කරුණාකර සියලු විස්තර නිවැරදිව ඇතුළත් කරන්න.');
+    return;
+  }
+
+  const u = getUserData();
+  const lendLogs = u.lendLogs || [];
+  lendLogs.push({ id: Date.now(), name, amount, returnDate, status: 'pending' });
+
+  updateUserData({ lendLogs });
+  document.getElementById('lendName').value = '';
+  document.getElementById('lendAmount').value = '';
+  document.getElementById('lendReturnDate').value = '';
+  renderLendList();
+  alert('ණය සටහන සාර්ථකව ඇතුළත් කරන ලදී!');
+}
+
+function markLendAsPaid(id) {
+  const u = getUserData();
+  let lendLogs = u.lendLogs || [];
+  lendLogs = lendLogs.filter(item => item.id !== id);
+  updateUserData({ lendLogs });
+  renderLendList();
+}
+
+function renderLendList() {
+  const u = getUserData();
+  const lendLogs = u.lendLogs || [];
+  const container = document.getElementById('lendList');
+  
+  if (lendLogs.length === 0) {
+    container.innerHTML = '<p style="font-size:12px; color:#888;">තවම ණයට දුන් මුදල් සටහන් කර නැත.</p>';
+    return;
+  }
+
+  let html = '';
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  lendLogs.forEach(item => {
+    const isOverdue = item.returnDate < todayStr;
+    const isToday = item.returnDate === todayStr;
+    
+    let statusBadge = `<span style="color:#e67e22; font-size:11px; font-weight:bold;">ලබාදීමට ඇත (${item.returnDate})</span>`;
+    if (isToday) {
+      statusBadge = `<span style="color:#d35400; font-size:11px; font-weight:bold;">⚠️ අද දින ලබාදිය යුතුයි!</span>`;
+    } else if (isOverdue) {
+      statusBadge = `<span style="color:#c0392b; font-size:11px; font-weight:bold;">🚨 කාලය පෙනී ගොස් ඇත (${item.returnDate})</span>`;
     }
 
-    function changeLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem('mp_lang', lang);
-        applyLanguage();
-    }
+    html += `
+      <div class="log-item">
+        <div>
+          <div><b>${item.name}</b> - <span style="color:var(--primary-color); font-weight:bold;">Rs. ${item.amount.toFixed(2)}</span></div>
+          <div>${statusBadge}</div>
+        </div>
+        <button class="btn-success" onclick="markLendAsPaid(${item.id})">ලැබුණි (Paid)</button>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
 
-    function applyLanguage() {
-        document.getElementById('headerLangSelect').value = currentLang;
-        const dict = translations[currentLang];
+// DAILY LOGS LOGIC
+function addDailyExpense() {
+  const amount = parseFloat(document.getElementById('quickDailyAmount').value) || 0;
+  const note = document.getElementById('quickDailyNote').value.trim() || 'සාමාන්‍ය වියදම';
 
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (dict[key]) {
-                el.innerText = dict[key];
-            }
-        });
+  if (amount <= 0) {
+    alert('කරුණාකර නිවැරදි මුදලක් ඇතුළත් කරන්න.');
+    return;
+  }
 
-        if (currentUser) {
-            renderDashboard();
-        }
-    }
+  const u = getUserData();
+  const logs = u.dailyLogs || [];
+  const todayStr = new Date().toISOString().split('T')[0];
 
-    // AUTH LOGIC
-    function switchAuthTab(mode) {
-        authMode = mode;
-        document.getElementById('tabBtnLogin').classList.toggle('active', mode === 'login');
-        document.getElementById('tabBtnRegister').classList.toggle('active', mode === 'register');
-        document.getElementById('authSubmitBtn').innerText = translations[currentLang][mode];
-    }
+  logs.unshift({ date: todayStr, amount, note });
+  updateUserData({ dailyLogs: logs });
 
-    function handleAuth(e) {
-        e.preventDefault();
-        const username = document.getElementById('authUsername').value.trim();
-        const password = document.getElementById('authPassword').value;
+  document.getElementById('quickDailyAmount').value = '';
+  document.getElementById('quickDailyNote').value = '';
+  alert('දෛනික වියදම එක් කරන ලදී!');
+}
 
-        if (!username || !password) return;
+// DASHBOARD & NOTIFICATIONS CALCULATIONS
+function renderDashboard() {
+  const u = getUserData();
+  const dict = translations[currentLang];
+  const salary = (u.income && u.income.salary) || 0;
+  const otherIncome = (u.income && u.income.other) || 0;
+  const totIncome = salary + otherIncome;
 
-        let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
+  // 1. Calculate Fixed Expenses
+  let fixedExpenses = 0;
+  if (u.expenses) {
+    fixedExpenses += (u.expenses.rent || 0) + (u.expenses.transport || 0) + (u.expenses.phone || 0) + (u.expenses.utility || 0);
+  }
+  if (u.customExpenses) {
+    u.customExpenses.forEach(c => fixedExpenses += (c.amount || 0));
+  }
+  const loanEmi = (u.loan && u.loan.emi) || 0;
+  fixedExpenses += loanEmi;
 
-        if (authMode === 'register') {
-            if (users[username]) {
-                alert('Username already exists!');
-                return;
-            }
-            users[username] = {
-                password: password,
-                income: { salary: 0, other: 0, nextSalaryDate: '' },
-                savings: { target: 0, current: 0 },
-                expenses: { food: 0, rent: 0, transport: 0, phone: 0, utility: 0, other: 0 },
-                customExpenses: [],
-                loan: { emi: 0 }
-            };
-            localStorage.setItem('mp_users', JSON.stringify(users));
-            currentUser = username;
-            localStorage.setItem('mp_current_user', username);
-            showMainApp();
-        } else {
-            if (!users[username] || users[username].password !== password) {
-                alert('Invalid Username or Password!');
-                return;
-            }
-            currentUser = username;
-            localStorage.setItem('mp_current_user', username);
-            showMainApp();
-        }
-    }
+  // 2. Savings Target
+  const savingsTarget = (u.savings && u.savings.target) || 0;
 
-    function logout() {
-        currentUser = null;
-        localStorage.removeItem('mp_current_user');
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('authScreen').style.display = 'block';
-        document.getElementById('btnLogout').style.display = 'none';
-    }
+  // 3. Dynamic Daily Budget Pool
+  const variableBudgetPool = Math.max(0, totIncome - fixedExpenses - savingsTarget);
 
-    function showMainApp() {
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('btnLogout').style.display = 'inline-block';
-        
-        loadUserDataIntoForms();
-        renderDashboard();
-    }
+  // Calculate Days Remaining
+  let daysLeft = 30;
+  if (u.income && u.income.nextSalaryDate) {
+    const diffTime = new Date(u.income.nextSalaryDate) - new Date();
+    daysLeft = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  }
 
-    // USER DATA LOGIC
-    function getUserData() {
-        let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
-        return users[currentUser] || {};
-    }
+  // Total Daily Expenses Spent
+  const dailyLogs = u.dailyLogs || [];
+  let totalDailySpent = 0;
+  dailyLogs.forEach(log => totalDailySpent += log.amount);
 
-    function updateUserData(data) {
-        let users = JSON.parse(localStorage.getItem('mp_users') || '{}');
-        users[currentUser] = { ...users[currentUser], ...data };
-        localStorage.setItem('mp_users', JSON.stringify(users));
-        renderDashboard();
-    }
+  const remainingDailyPool = variableBudgetPool - totalDailySpent;
+  const dynamicTodayLimit = remainingDailyPool > 0 ? (remainingDailyPool / daysLeft) : 0;
 
-    function loadUserDataIntoForms() {
-        const u = getUserData();
-        if (u.income) {
-            document.getElementById('inSalary').value = u.income.salary || '';
-            document.getElementById('inOtherIncome').value = u.income.other || '';
-            document.getElementById('inNextSalaryDate').value = u.income.nextSalaryDate || '';
-        }
-        if (u.savings) {
-            document.getElementById('inSavingsTarget').value = u.savings.target || '';
-            document.getElementById('inCurrentSavings').value = u.savings.current || '';
-        }
-        if (u.expenses) {
-            document.getElementById('expFood').value = u.expenses.food || '';
-            document.getElementById('expRent').value = u.expenses.rent || '';
-            document.getElementById('expTransport').value = u.expenses.transport || '';
-            document.getElementById('expPhone').value = u.expenses.phone || '';
-            document.getElementById('expUtility').value = u.expenses.utility || '';
-            document.getElementById('expOther').value = u.expenses.other || '';
-        }
+  const totalOverallExpenses = fixedExpenses + totalDailySpent;
+  const availBalance = totIncome - totalOverallExpenses;
 
-        renderCustomExpenseFields(u.customExpenses || []);
-    }
+  // UI Updates
+  document.getElementById('dashTodayLimit').innerText = 'Rs. ' + dynamicTodayLimit.toFixed(2);
+  document.getElementById('dashTotIncome').innerText = 'Rs. ' + totIncome.toLocaleString('en-US', {minimumFractionDigits: 2});
+  document.getElementById('dashTotExpenses').innerText = 'Rs. ' + totalOverallExpenses.toLocaleString('en-US', {minimumFractionDigits: 2});
+  document.getElementById('dashAvailBalance').innerText = 'Rs. ' + availBalance.toLocaleString('en-US', {minimumFractionDigits: 2});
+  document.getElementById('dashFixedExpenses').innerText = 'Rs. ' + fixedExpenses.toLocaleString('en-US', {minimumFractionDigits: 2});
 
-    function saveIncomeAndSavings() {
-        const salary = parseFloat(document.getElementById('inSalary').value) || 0;
-        const other = parseFloat(document.getElementById('inOtherIncome').value) || 0;
-        const nextSalaryDate = document.getElementById('inNextSalaryDate').value;
+  // Savings Progress
+  const actualSavingsAchieved = Math.max(0, totIncome - totalOverallExpenses);
+  const savingsPct = savingsTarget > 0 ? Math.min(100, Math.round((actualSavingsAchieved / savingsTarget) * 100)) : 0;
+  document.getElementById('savingsProgressBar').style.width = savingsPct + '%';
+  document.getElementById('savingsCurrentText').innerText = 'Estimated Savings: Rs. ' + actualSavingsAchieved.toLocaleString();
+  document.getElementById('savingsTargetText').innerText = 'Target: Rs. ' + savingsTarget.toLocaleString();
 
-        const target = parseFloat(document.getElementById('inSavingsTarget').value) || 0;
-        const current = parseFloat(document.getElementById('inCurrentSavings').value) || 0;
+  document.getElementById('dashDaysUntilSalary').innerText = (u.income?.nextSalaryDate || '--') + ' (' + daysLeft + ' days left)';
+  document.getElementById('dashLoanEmiText').innerText = 'Active Loan EMI: Rs. ' + loanEmi.toLocaleString('en-US', {minimumFractionDigits: 2});
 
-        updateUserData({
-            income: { salary, other, nextSalaryDate },
-            savings: { target, current }
-        });
+  // Expense Logs Rendering
+  let logsHtml = '';
+  if (dailyLogs.length === 0) {
+    logsHtml = '<p style="font-size:12px; color:#888;">තවම වියදම් ඇතුළත් කර නැත.</p>';
+  } else {
+    dailyLogs.slice(0, 5).forEach(log => {
+      logsHtml += `
+        <div class="log-item">
+          <span><b>${log.date}</b> - ${log.note}</span>
+          <span style="color:var(--danger-color); font-weight:bold;">Rs. ${log.amount.toFixed(2)}</span>
+        </div>
+      `;
+    });
+  }
+  document.getElementById('dailyLogsList').innerHTML = logsHtml;
 
-        alert('Saved successfully!');
-    }
+  // DYNAMIC WARNINGS & LENDING NOTIFICATIONS
+  const warnContainer = document.getElementById('warningContainer');
+  warnContainer.innerHTML = '';
 
-    function saveExpenses() {
-        const food = parseFloat(document.getElementById('expFood').value) || 0;
-        const rent = parseFloat(document.getElementById('expRent').value) || 0;
-        const transport = parseFloat(document.getElementById('expTransport').value) || 0;
-        const phone = parseFloat(document.getElementById('expPhone').value) || 0;
-        const utility = parseFloat(document.getElementById('expUtility').value) || 0;
-        const other = parseFloat(document.getElementById('expOther').value) || 0;
+  // 1. Budget Warnings
+  if (totalOverallExpenses > totIncome && totIncome > 0) {
+    warnContainer.innerHTML += `<div class="alert alert-danger"><span>${dict.warnOverBudget}</span></div>`;
+  } else if (remainingDailyPool <= 0 && totIncome > 0) {
+    warnContainer.innerHTML += `<div class="alert alert-warning"><span>⚠️ අවධානයයි: ඔබගේ දෛනික වියදම් සීමාව ඉක්මවා ඇත!</span></div>`;
+  }
 
-        // Collect custom categories
-        const customItems = [];
-        document.querySelectorAll('.custom-cat-item').forEach(item => {
-            const name = item.querySelector('.custom-name').value.trim();
-            const amount = parseFloat(item.querySelector('.custom-amount').value) || 0;
-            if (name) customItems.push({ name, amount });
-        });
+  // 2. Lend Money Notifications
+  const lendLogs = u.lendLogs || [];
+  const todayStr = new Date().toISOString().split('T')[0];
+  let todayLends = [];
+  let overdueLends = [];
 
-        updateUserData({
-            expenses: { food, rent, transport, phone, utility, other },
-            customExpenses: customItems
-        });
+  lendLogs.forEach(l => {
+    if (l.returnDate === todayStr) todayLends.push(l);
+    if (l.returnDate < todayStr) overdueLends.push(l);
+  });
 
-        alert('Expenses saved successfully!');
-    }
+  if (todayLends.length > 0) {
+    let names = todayLends.map(x => `<b>${x.name}</b> (Rs. ${x.amount})`).join(', ');
+    warnContainer.innerHTML += `
+      <div class="alert alert-warning">
+        <div>🔔 <b>ණය මතක් කිරීම (අද දින):</b> අද දින ඔබට මුදල් ලබාදීමට ඇති අය: ${names}</div>
+      </div>
+    `;
+  }
 
-    function addCustomExpenseField(name = '', amount = '') {
-        const container = document.getElementById('customExpensesList');
-        const div = document.createElement('div');
-        div.className = 'custom-cat-item';
-        div.innerHTML = `
-            <input type="text" class="custom-name" placeholder="Category Name" value="${name}">
-            <input type="number" class="custom-amount" placeholder="Rs." value="${amount}">
-            <button class="btn-del" onclick="this.parentElement.remove()">✕</button>
-        `;
-        container.appendChild(div);
-    }
+  if (overdueLends.length > 0) {
+    let names = overdueLends.map(x => `<b>${x.name}</b> (Rs. ${x.amount})`).join(', ');
+    warnContainer.innerHTML += `
+      <div class="alert alert-danger">
+        <div>🚨 <b>කාලය ඉකුත් වූ ණය (Overdue):</b> පොරොන්දු වූ දිනය ඉකුත් වූ ණය මුදල්: ${names}</div>
+      </div>
+    `;
+  }
+}
 
-    function renderCustomExpenseFields(customExpenses) {
-        const container = document.getElementById('customExpensesList');
-        container.innerHTML = '';
-        customExpenses.forEach(item => addCustomExpenseField(item.name, item.amount));
-    }
+// LOAN CALCULATOR LOGIC
+let calculatedEmi = 0;
+function calculateLoan() {
+  const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
+  const annualRate = parseFloat(document.getElementById('loanRate').value) || 0;
+  let period = parseFloat(document.getElementById('loanPeriod').value) || 0;
+  const unit = document.getElementById('loanPeriodUnit').value;
 
-    // DASHBOARD CALCULATIONS
-    function renderDashboard() {
-        const u = getUserData();
-        const dict = translations[currentLang];
+  if (amount <= 0 || annualRate <= 0 || period <= 0) {
+    alert('Please enter valid loan details.');
+    return;
+  }
 
-        const salary = (u.income && u.income.salary) || 0;
-        const otherIncome = (u.income && u.income.other) || 0;
-        const totIncome = salary + otherIncome;
+  const totalMonths = unit === 'years' ? period * 12 : period;
+  const monthlyRate = (annualRate / 12) / 100;
 
-        let totExpenses = 0;
-        if (u.expenses) {
-            totExpenses += (u.expenses.food || 0) + (u.expenses.rent || 0) + (u.expenses.transport || 0) +
-                           (u.expenses.phone || 0) + (u.expenses.utility || 0) + (u.expenses.other || 0);
-        }
+  const emi = (amount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+  const totalPayment = emi * totalMonths;
+  const totalInterest = totalPayment - amount;
 
-        if (u.customExpenses) {
-            u.customExpenses.forEach(c => totExpenses += (c.amount || 0));
-        }
+  calculatedEmi = emi;
 
-        const loanEmi = (u.loan && u.loan.emi) || 0;
-        totExpenses += loanEmi;
+  document.getElementById('resEmi').innerText = 'Rs. ' + emi.toLocaleString('en-US', {maximumFractionDigits: 2});
+  document.getElementById('resTotalInterest').innerText = 'Rs. ' + totalInterest.toLocaleString('en-US', {maximumFractionDigits: 2});
+  document.getElementById('resTotalPayable').innerText = 'Total Repayment: Rs. ' + totalPayment.toLocaleString('en-US', {maximumFractionDigits: 2});
 
-        const availBalance = totIncome - totExpenses;
+  let balance = amount;
+  let tbodyHtml = '';
+  const previewMonths = Math.min(totalMonths, 12);
 
-        // Days calculation
-        let daysLeft = 30;
-        if (u.income && u.income.nextSalaryDate) {
-            const diffTime = new Date(u.income.nextSalaryDate) - new Date();
-            daysLeft = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-        }
+  for (let m = 1; m <= previewMonths; m++) {
+    const mInterest = balance * monthlyRate;
+    const mPrincipal = emi - mInterest;
+    balance -= mPrincipal;
 
-        const dailyLimit = availBalance > 0 ? (availBalance / daysLeft) : 0;
+    tbodyHtml += `
+      <tr>
+        <td>${m}</td>
+        <td>Rs. ${emi.toFixed(0)}</td>
+        <td>Rs. ${mInterest.toFixed(0)}</td>
+        <td>Rs. ${Math.max(0, balance).toFixed(0)}</td>
+      </tr>
+    `;
+  }
+  document.getElementById('loanTableBody').innerHTML = tbodyHtml;
+  document.getElementById('loanResultsCard').style.display = 'block';
+}
 
-        // Savings
-        const savingsTarget = (u.savings && u.savings.target) || 0;
-        const currentSavings = (u.savings && u.savings.current) || 0;
-        const savingsPct = savingsTarget > 0 ? Math.min(100, Math.round((currentSavings / savingsTarget) * 100)) : 0;
+function saveLoanToProfile() {
+  if (calculatedEmi <= 0) return;
+  updateUserData({ loan: { emi: calculatedEmi } });
+  alert('Loan EMI saved to profile and added to fixed expenses!');
+}
 
-        // UI Updates
-        document.getElementById('dashTotIncome').innerText = 'Rs. ' + totIncome.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById('dashTotExpenses').innerText = 'Rs. ' + totExpenses.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById('dashAvailBalance').innerText = 'Rs. ' + availBalance.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById('dashDailyLimit').innerText = 'Rs. ' + dailyLimit.toFixed(2);
+// VIEW NAVIGATION
+function switchView(viewId, element) {
+  document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-        document.getElementById('savingsProgressBar').style.width = savingsPct + '%';
-        document.getElementById('savingsCurrentText').innerText = 'Saved: Rs. ' + currentSavings.toLocaleString();
-        document.getElementById('savingsTargetText').innerText = 'Target: Rs. ' + savingsTarget.toLocaleString();
+  document.getElementById(viewId).classList.add('active');
+  element.classList.add('active');
 
-        document.getElementById('dashDaysUntilSalary').innerText = dict.nextSalaryDate + ': ' + (u.income?.nextSalaryDate || '--') + ' (' + daysLeft + ' days left)';
-        document.getElementById('dashLoanEmiText').innerText = 'Active Loan EMI: Rs. ' + loanEmi.toLocaleString('en-US', {minimumFractionDigits: 2});
-
-        // Warnings
-        const warnContainer = document.getElementById('warningContainer');
-        warnContainer.innerHTML = '';
-
-        if (totExpenses > totIncome && totIncome > 0) {
-            warnContainer.innerHTML += `<div class="alert alert-danger">${dict.warnOverBudget}</div>`;
-        } else if (totExpenses > (totIncome * 0.8) && totIncome > 0) {
-            warnContainer.innerHTML += `<div class="alert alert-warning">${dict.warnHighSpend}</div>`;
-        }
-    }
-
-    // LOAN CALCULATOR LOGIC
-    let calculatedEmi = 0;
-
-    function calculateLoan() {
-        const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
-        const annualRate = parseFloat(document.getElementById('loanRate').value) || 0;
-        let period = parseFloat(document.getElementById('loanPeriod').value) || 0;
-        const unit = document.getElementById('loanPeriodUnit').value;
-
-        if (amount <= 0 || annualRate <= 0 || period <= 0) {
-            alert('Please enter valid loan details.');
-            return;
-        }
-
-        const totalMonths = unit === 'years' ? period * 12 : period;
-        const monthlyRate = (annualRate / 12) / 100;
-
-        const emi = (amount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
-        const totalPayment = emi * totalMonths;
-        const totalInterest = totalPayment - amount;
-
-        calculatedEmi = emi;
-
-        document.getElementById('resEmi').innerText = 'Rs. ' + emi.toLocaleString('en-US', {maximumFractionDigits: 2});
-        document.getElementById('resTotalInterest').innerText = 'Rs. ' + totalInterest.toLocaleString('en-US', {maximumFractionDigits: 2});
-        document.getElementById('resTotalPayable').innerText = 'Total Repayment: Rs. ' + totalPayment.toLocaleString('en-US', {maximumFractionDigits: 2});
-
-        // Table Preview (First 12 months)
-        let balance = amount;
-        let tbodyHtml = '';
-        const previewMonths = Math.min(totalMonths, 12);
-
-        for (let m = 1; m <= previewMonths; m++) {
-            const mInterest = balance * monthlyRate;
-            const mPrincipal = emi - mInterest;
-            balance -= mPrincipal;
-
-            tbodyHtml += `
-                <tr>
-                    <td>${m}</td>
-                    <td>Rs. ${emi.toFixed(0)}</td>
-                    <td>Rs. ${mInterest.toFixed(0)}</td>
-                    <td>Rs. ${Math.max(0, balance).toFixed(0)}</td>
-                </tr>
-            `;
-        }
-
-        document.getElementById('loanTableBody').innerHTML = tbodyHtml;
-        document.getElementById('loanResultsCard').style.display = 'block';
-    }
-
-    function saveLoanToProfile() {
-        if (calculatedEmi <= 0) return;
-        updateUserData({
-            loan: { emi: calculatedEmi }
-        });
-        alert('Loan EMI saved to profile and added to dashboard expenses!');
-    }
-
-    // VIEW NAVIGATION
-    function switchView(viewId, element) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-        document.getElementById(viewId).classList.add('active');
-        element.classList.add('active');
-
-        if (viewId === 'viewDashboard') {
-            renderDashboard();
-        }
-    }
+  if (viewId === 'viewDashboard') {
+    renderDashboard();
+  } else if (viewId === 'viewLend') {
+    renderLendList();
+  }
+}
 </script>
 
 </body>
